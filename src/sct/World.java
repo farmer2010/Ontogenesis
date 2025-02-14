@@ -73,15 +73,60 @@ public class World extends JPanel{
 		stop_button.setBounds(W - 300, 125, 250, 35);
         add(stop_button);
         //
-        JButton predators_button = new JButton("Standart");
-        predators_button.addActionListener(e -> change_draw_type(0));
-		predators_button.setBounds(W - 300, 190, 95, 20);
-        add(predators_button);
+        JButton standart_button = new JButton("Standart");
+        standart_button.addActionListener(e -> change_draw_type(0));
+        standart_button.setBounds(W - 300, 190, 95, 20);
+        add(standart_button);
         //
-        JButton energy_button = new JButton("Morph 1");
-        energy_button.addActionListener(e -> change_draw_type(1));
-		energy_button.setBounds(W - 200, 190, 95, 20);
-        add(energy_button);
+        JButton morph1_button = new JButton("Morph 1");
+        morph1_button.addActionListener(e -> change_draw_type(1));
+        morph1_button.setBounds(W - 200, 190, 95, 20);
+        add(morph1_button);
+        //
+        JButton morph2_button = new JButton("Morph 2");
+        morph2_button.addActionListener(e -> change_draw_type(2));
+        morph2_button.setBounds(W - 100, 190, 95, 20);
+        add(morph2_button);
+        //
+        JButton morph3_button = new JButton("Morph 3");
+        morph3_button.addActionListener(e -> change_draw_type(3));
+        morph3_button.setBounds(W - 300, 215, 95, 20);
+        add(morph3_button);
+        //
+        JButton morph4_button = new JButton("Morph 4");
+        morph4_button.addActionListener(e -> change_draw_type(4));
+        morph4_button.setBounds(W - 200, 215, 95, 20);
+        add(morph4_button);
+        //
+        JButton morph5_button = new JButton("Morph 5");
+        morph5_button.addActionListener(e -> change_draw_type(5));
+        morph5_button.setBounds(W - 100, 215, 95, 20);
+        add(morph5_button);
+        //
+        JButton morph6_button = new JButton("Morph 6");
+        morph6_button.addActionListener(e -> change_draw_type(6));
+        morph6_button.setBounds(W - 300, 240, 95, 20);
+        add(morph6_button);
+        //
+        JButton morph7_button = new JButton("Morph 7");
+        morph7_button.addActionListener(e -> change_draw_type(7));
+        morph7_button.setBounds(W - 200, 240, 95, 20);
+        add(morph7_button);
+        //
+        JButton morph8_button = new JButton("Morph 8");
+        morph8_button.addActionListener(e -> change_draw_type(8));
+        morph8_button.setBounds(W - 100, 240, 95, 20);
+        add(morph8_button);
+        //
+        JButton mul_block_button = new JButton("Multiply block");
+        mul_block_button.addActionListener(e -> change_draw_type(9));
+        mul_block_button.setBounds(W - 300, 265, 95, 20);
+        add(mul_block_button);
+        //
+        JButton index_button = new JButton("Index");
+        index_button.addActionListener(e -> change_draw_type(10));
+        index_button.setBounds(W - 200, 265, 95, 20);
+        add(index_button);
         //
         JButton select_button = new JButton("Select");
         select_button.addActionListener(new select());
@@ -136,16 +181,28 @@ public class World extends JPanel{
 	public void paintComponent(Graphics canvas) {
 		super.paintComponent(canvas);
 		if (render) {
-			if (draw_type == 1) {
+			if (draw_type > 0 && draw_type <= 8) {
 				for (int x = 0; x < 162; x++) {
 					for (int y = 0; y < 108; y++) {
-						int r = (int)(reg_map[x][y][0] * 255);
+						int r = (int)(reg_map[x][y][draw_type - 1] * 255);
 						if (r > 255) {
 							r = 255;
 						}else if (r < 0) {
 							r = 0;
 						}
-						canvas.setColor(new Color(255, 255 - r, 255 - r));
+						if (draw_type == 1) {
+							canvas.setColor(new Color(255, 255 - r, 255 - r));
+						}else if (draw_type == 2) {
+							canvas.setColor(new Color(255 - r, 255, 255 - r));
+						}else if (draw_type == 3) {
+							canvas.setColor(new Color(255 - r, 255 - r, 255));
+						}else if (draw_type == 4) {
+							canvas.setColor(new Color(255, 255, 255 - r));
+						}else if (draw_type == 5) {
+							canvas.setColor(new Color(255, 255 - r, 255));
+						}else if (draw_type == 6) {
+							canvas.setColor(new Color(255 - r, 255, 255));
+						}
 						canvas.fillRect(x * 10, y * 10, 10, 10);
 					}
 				}
@@ -161,9 +218,13 @@ public class World extends JPanel{
 		canvas.drawString("steps: " + String.valueOf(steps), W - 300, 60);
 		canvas.drawString("objects: " + String.valueOf(obj_count), W - 300, 80);
 		if (draw_type == 0) {
-			canvas.drawString("render type: " + "bot types view", W - 300, 100);
-		}else if (draw_type == 1) {
-			canvas.drawString("render type: " + "morphogene 1 view", W - 300, 100);
+			canvas.drawString("render type: bot types view", W - 300, 100);
+		}else if (draw_type <= 8) {
+			canvas.drawString("render type: morphogene " + String.valueOf(draw_type) + " view", W - 300, 100);
+		}else if (draw_type == 9) {
+			canvas.drawString("render type: multiply block view", W - 300, 100);
+		}else if (draw_type == 10) {
+			canvas.drawString("render type: index view", W - 300, 100);
 		}
 		canvas.drawString("Render types:", W - 300, 180);
 		if (mouse == 0) {
@@ -174,18 +235,18 @@ public class World extends JPanel{
 			txt2 = "remove";
 		}
 		canvas.drawString("mouse function: " + txt2, W - 300, 120);
-		canvas.drawString("Selection:", W - 300, 275);
+		canvas.drawString("Selection:", W - 300, 400);
 		canvas.drawString("Load:", W - 300, 490);
 		canvas.drawString("enter name:", W - 300, 510);
 		canvas.drawString("Controls:", W - 300, 580);
 		if (selection != null) {
-			canvas.drawString("position: " + "[" + String.valueOf(selection.xpos) + ", " + String.valueOf(selection.ypos) + "]", W - 300, 335);
+			canvas.drawString("position: " + "[" + String.valueOf(selection.xpos) + ", " + String.valueOf(selection.ypos) + "]", W - 300, 420);
 			canvas.setColor(new Color(90, 90, 90, 90));
 			canvas.fillRect(0, 0, W - 300, 1080);
 			canvas.setColor(new Color(255, 0, 0));
 			canvas.fillRect(selection.xpos * 10, selection.ypos * 10, 10, 10);
 		}else {
-			canvas.drawString("none", W - 300, 295);
+			canvas.drawString("none", W - 300, 420);
 		}
 		if (rec && steps % 25 == 0) {
 			try {
@@ -218,8 +279,8 @@ public class World extends JPanel{
 				reg_map,
 				objects
 			);
-			//objects.add(new_bot);
-			//Map[x][y] = new_bot;
+			objects.add(new_bot);
+			Map[x][y] = new_bot;
 		}
 		repaint();
 	}
@@ -253,17 +314,20 @@ public class World extends JPanel{
 						if (i % 2 == 0) {//по ортогонали не меняем значение
 							r = reg_map[pos[0]][pos[1]][ind];
 						}else {//по диагонали делим на sqrt(2)
-							r = reg_map[pos[0]][pos[1]][ind] / 1.41;
+							//r = reg_map[pos[0]][pos[1]][ind];
+							r = 0;
 						}
 						if (r > max) {//находим максимальное из текущего и предыдущего
 							max = r;
 						}
 					}
 				}
-				if (max > 0.05 && max > reg_map[x][y][ind]) {//записываем в клетку морфоген - шаг
+				if (max >= 0.001 && max > reg_map[x][y][ind]) {//записываем в клетку морфоген - шаг
 					new_map[x][y] = max - 0.05;
 				}
-				new_map[x][y] *= 0.999;//испарение
+				if (max <= reg_map[x][y][ind] && reg_map[x][y][ind] >= 0.01) {
+					new_map[x][y] -= 0.001;
+				}
 			}
 		}
 		//
@@ -278,7 +342,9 @@ public class World extends JPanel{
 			if (e.getX() < W - 300) {
 				botpos[0] = e.getX() / 10;
 				botpos[1] = e.getY() / 10;
-				reg_map[botpos[0]][botpos[1]][0] = 1;
+				if (draw_type > 0) {
+					//reg_map[botpos[0]][botpos[1]][draw_type - 1] = 1;
+				}
 				if (mouse == 0) {//select
 					if (find_map_pos(botpos, 0)) {
 						Bot b = Map[botpos[0]][botpos[1]];
@@ -301,7 +367,9 @@ public class World extends JPanel{
 			if (e.getX() < W - 300) {
 				botpos[0] = e.getX() / 10;
 				botpos[1] = e.getY() / 10;
-				reg_map[botpos[0]][botpos[1]][0] = 1;
+				if (draw_type > 0) {
+					//reg_map[botpos[0]][botpos[1]][draw_type - 1] = 1;
+				}
 				if (mouse == 2) {//remove
 					if (Map[botpos[0]][botpos[1]] != null) {
 						Bot b = Map[botpos[0]][botpos[1]];
@@ -338,7 +406,9 @@ public class World extends JPanel{
 						sh_brain = false;
 					}
 				}
-				update_regulator(0);
+				for (int i = 0; i < 8; i++) {
+					update_regulator(i);
+				}
 			}
 			ListIterator<Bot> iterator = objects.listIterator();
 			while (iterator.hasNext()) {

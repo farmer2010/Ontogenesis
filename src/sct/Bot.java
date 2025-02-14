@@ -30,6 +30,8 @@ public class Bot{
 	};
 	private int[] world_scale = {162, 108};
 	private double[][][] reg_map;
+	private boolean block_multiply = false;
+	private boolean is_new = true;
 	public Bot(int new_xpos, int new_ypos, Bot[][] new_map, double[][][] new_reg_map, ArrayList<Bot> new_objects) {
 		xpos = new_xpos;
 		ypos = new_ypos;
@@ -47,35 +49,127 @@ public class Bot{
 		}
 	}
 	public void Draw(Graphics canvas, int draw_type) {
-		if (state == 0) {//рисуем бота
-			canvas.setColor(new Color(0, 0, 0));
-			canvas.fillRect(x, y, 10, 10);
-			if (draw_type == 0) {
+		canvas.setColor(new Color(0, 0, 0));
+		canvas.fillRect(x, y, 10, 10);
+		if (draw_type == 0) {
+			if (state == 0) {
+				canvas.setColor(new Color(230, 230, 230));
+			}else if (state == 1) {
 				canvas.setColor(new Color(255, 233, 128));
-			}else if (draw_type == 1) {
-				int r = (int)(reg_map[xpos][ypos][0] * 255);
-				if (r > 255) {
-					r = 255;
-				}else if (r < 0) {
-					r = 0;
-				}
-				canvas.setColor(new Color(255, 255 - r, 255 - r));
+			}else if (state == 2) {
+				canvas.setColor(new Color(128, 70, 0));
 			}
-			canvas.fillRect(x + 1, y + 1, 8, 8);
-		}else {//
-			
+		}else if (draw_type <= 8) {
+			int r = (int)(reg_map[xpos][ypos][draw_type - 1] * 255);
+			if (r > 255) {
+				r = 255;
+			}else if (r < 0) {
+				r = 0;
+			}
+			if (draw_type == 1) {
+				canvas.setColor(new Color(255, 255 - r, 255 - r));
+			}else if (draw_type == 2) {
+				canvas.setColor(new Color(255 - r, 255, 255 - r));
+			}else if (draw_type == 3) {
+				canvas.setColor(new Color(255 - r, 255 - r, 255));
+			}else if (draw_type == 4) {
+				canvas.setColor(new Color(255, 255, 255 - r));
+			}else if (draw_type == 5) {
+				canvas.setColor(new Color(255, 255 - r, 255));
+			}else if (draw_type == 6) {
+				canvas.setColor(new Color(255 - r, 255, 255));
+			}
+		}else if (draw_type == 9) {
+			if (block_multiply) {
+				canvas.setColor(new Color(255, 0, 0));
+			}else {
+				canvas.setColor(new Color(0, 255, 0));
+			}
+		}else if (draw_type == 10) {
+			if (index == 0) {
+				canvas.setColor(new Color(0, 0, 255));
+			}else if (index == 1) {
+				canvas.setColor(new Color(0, 255, 0));
+			}else if (index == 2) {
+				canvas.setColor(new Color(255, 0, 0));
+			}
 		}
+		canvas.fillRect(x + 1, y + 1, 8, 8);
 	}
 	public int Update(ListIterator<Bot> iterator) {
-		if (killed == 0) {
-			if (state == 0) {//бот
-				update_commands(iterator);
+		if (killed == 0 && !is_new) {
+			update_commands(iterator);
+		}
+		if (killed == 0 && !is_new) {
+			if (!block_multiply && rand.nextInt(3) == 0) {
+				multiply(rand.nextInt(8), iterator);
 			}
 		}
+		is_new = false;
 		return(0);
 	}
 	public void update_commands(ListIterator<Bot> iterator) {//мозг
-		multiply(rand.nextInt(8), iterator);
+		if (state == 0) {
+			if (index == 0) {
+				if (bot_count() == 0) {
+					index = 1;
+				}else {
+					index = 2;
+				}
+				is_new = true;
+			}else if (index == 1) {
+				reg_map[xpos][ypos][0] = 1;
+				reg_map[xpos][ypos][3] = 0.90;
+			}else if (index == 2) {
+				if (reg_map[xpos][ypos][0] < 0.001) {
+					if (reg_map[xpos][ypos][2] >= 0.001) {
+						reg_map[xpos][ypos][1] = 0.2;
+						state = 2;
+						block_multiply = true;
+					}else {
+						index = 1;
+						reg_map[xpos][ypos][2] = 1.5;
+					}
+				}else {
+					block_multiply = false;
+					if (reg_map[xpos][ypos][1] >= 0.001 && bot_count() == 8) {
+						state = 1;
+						index = 0;
+					}
+				}
+			}
+		}else if (state == 1) {
+			reg_map[xpos][ypos][5] = 0.125;
+			if (index == 0) {
+				reg_map[xpos][ypos][1] = 0.2;
+				index = 1;
+				is_new = true;
+			}else if (index == 1) {
+				if (reg_map[xpos][ypos][3] < 0.001) {
+					reg_map[xpos][ypos][1] = 0.2;
+					block_multiply = true;
+				}else {
+					block_multiply = false;
+				}
+				if (reg_map[xpos][ypos][0] < 0.001) {
+					killed = 1;
+					map[xpos][ypos] = null;
+				}
+				if (bot_count() < 8) {
+					reg_map[xpos][ypos][4] = 0.1;
+				}
+			}
+		}else if (state == 2) {
+			if (reg_map[xpos][ypos][4] < 0.001) {
+				block_multiply = true;
+			}else {
+				block_multiply = false;
+			}
+			if (reg_map[xpos][ypos][5] < 0.001) {
+				killed = 1;
+				map[xpos][ypos] = null;
+			}
+		}
 	}
 	public int move(int rot) {
 		int[] pos = get_rotate_position(rot);
@@ -98,10 +192,23 @@ public class Bot{
 		if (pos[1] >= 0 & pos[1] < world_scale[1]) {
 			if (map[pos[0]][pos[1]] == null) {
 				Bot new_bot = new Bot(pos[0], pos[1], map, reg_map, objects);
+				new_bot.state = state;
 				map[pos[0]][pos[1]] = new_bot;
 				iterator.add(new_bot);
 			}
 		}
+	}
+	public int bot_count() {
+		int count = 0;
+		for (int i = 0; i < 8; i++) {
+			int[] pos = get_rotate_position(i);
+			if (pos[1] >= 0 & pos[1] < world_scale[1]) {
+				if (map[pos[0]][pos[1]] != null) {
+					count++;
+				}
+			}
+		}
+		return(count);
 	}
 	public int[] get_rotate_position(int rot){
 		int[] pos = new int[2];
